@@ -25,11 +25,11 @@ export class BasicQueryDto {
     //     }
     //     return offset;
     // })
-    offset: number = 0;
+    skip: number = 0;
 
-    @ApiProperty({required: false, enum: OrderType, default: OrderType.ASC})
+    @ApiProperty({required: false, enum: OrderType, default: OrderType.DESC})
     // @Transform(orderBy => {
     //     return orderBy as OrderType;
     // })
-    orderType: OrderType = OrderType.ASC;
+    orderType: OrderType = OrderType.DESC;
 }

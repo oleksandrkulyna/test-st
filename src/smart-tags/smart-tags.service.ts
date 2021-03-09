@@ -11,22 +11,29 @@ export class SmartTagsService {
     }
 
     async list(queryDto: SmartTagsQueryDto): Promise<FindWrapperDto> {
-        const res = await this.neo4jService.read(`
-            MATCH (t:Technology {name: $name})-[r:RELATED]-(ot: Technology)
+        const cypherQuery = `
+            MATCH (t:Technology${queryDto.name ? ' {name: $name}' : ''})-[r:RELATED]-(ot: Technology)
 
             RETURN ot
 
-            ORDER BY toInteger(r.weight) DESC
+            ORDER BY toInteger(r.weight), ot.name ${queryDto.orderType}
             SKIP toInteger($skip)
             LIMIT toInteger($limit);
-        `, {
-            name: queryDto.name,
-            orderType: queryDto.orderType,
-            skip: queryDto.offset,
-            limit: queryDto.limit,
-        });
+        `;
 
-        return FindWrapperDto.fromEntities(res.records.map(record => SmartTagDto.fromEntity(new SmartTagEntity(record.get('ot')))), 0);
+        const cypherCountQuery = `
+            MATCH (t:Technology${queryDto.name ? ' {name: $name}' : ''})-[]-(ot: Technology)
+
+            RETURN count(ot) as totalCount;
+        `;
+
+        const totalCountRes = await this.neo4jService.read(cypherCountQuery, queryDto);
+        const res = await this.neo4jService.read(cypherQuery, queryDto);
+
+        return FindWrapperDto.fromEntities(
+            res.records.map(record => SmartTagDto.fromEntity(new SmartTagEntity(record.get('ot')))),
+            totalCountRes.records[0].get('totalCount').toInt()
+        );
     }
 
     async getConnected(name: string): Promise<string[]> {
