@@ -1,8 +1,8 @@
 import {NestFactory} from '@nestjs/core';
 import {AppModule} from './app.module';
-import {json} from "body-parser";
-import {ValidationPipe} from "@nestjs/common";
-import {DocumentBuilder, SwaggerModule} from "@nestjs/swagger";
+import {json} from 'body-parser';
+import {ValidationPipe} from '@nestjs/common';
+import {DocumentBuilder, SwaggerModule} from '@nestjs/swagger';
 
 
 async function bootstrap() {

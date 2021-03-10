@@ -1,5 +1,5 @@
 import {ApiResponseProperty} from '@nestjs/swagger';
-import {SmartTagDto} from "../../smart-tags/dto/smart-tag.dto";
+import {SmartTagDto} from '../../smart-tags/dto/smart-tag.dto';
 
 export type FindWrapperDocumentType = SmartTagDto;
 

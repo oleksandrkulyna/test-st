@@ -35,15 +35,4 @@ export class SmartTagsService {
             totalCountRes.records[0].get('totalCount').toInt()
         );
     }
-
-    async getConnected(name: string): Promise<string[]> {
-        const res = await this.neo4jService.read(`
-            MATCH (t:Technology {name: $name})-[:RELATED]->(ot:Technology)
-            RETURN ot AS tags;
-        `, {name})
-
-        const check = res;
-
-        return res.records[0].get('genres')
-    }
 }
