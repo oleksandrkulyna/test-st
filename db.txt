@@ -1,0 +1,47 @@
+LOAD CSV FROM 'http://localhost:11001/project-b45a97e2-86f1-40f8-9f83-5091bf3d87d9/SkillsGraph_Projects.csv' AS row
+
+WITH toInteger(row[0]) AS projectId, split(replace(toString(row[1]), '//', ''), '/') AS technologiesArray
+
+MERGE (project:Project {id: projectId, name: projectId})
+MERGE (proxy:Proxy {id: linenumber()})
+
+MERGE (project)-[:HAS_SET]->(proxy)
+
+WITH project, proxy, technologiesArray
+
+UNWIND technologiesArray as technologyName
+WITH project, proxy, trim(technologyName) as technologyName
+WHERE technologyName <> ''
+MERGE (technology:Technology {name: technologyName})
+MERGE (proxy)<-[:PART_OF]-(technology)
+
+RETURN project, proxy, technology
+LIMIT 100;
+-------------------------------------------------------------------------------------------------------------
+
+
+
+-------------------------------------------------------------------------------------------------------------
+MATCH (p:Project)-[:HAS_SET]->(pr:Proxy)<-[:PART_OF]-(t:Technology) WHERE p.id IN [5,10,11]
+RETURN p, pr, t;
+-------------------------------------------------------------------------------------------------------------
+
+
+-------------------------------------------------------------------------------------------------------------
+MATCH (currentTechnology:Technology)-[partOf:PART_OF]->(proxy:Proxy)<-[c:PART_OF]-(ot:Technology)
+
+UNWIND ot as anotherTechnology
+
+MERGE (currentTechnology)-[r:RELATED]-(anotherTechnology)
+ON CREATE SET r.weight = 0.5
+ON MATCH SET r.weight = r.weight + 0.5
+
+DETACH DELETE proxy;
+
+
+
+-------------------------------------------------------------------------------------------------------------
+
+MATCH (p:Project) DETACH DELETE p;
+MATCH (p:Proxy) DETACH DELETE p;
+
